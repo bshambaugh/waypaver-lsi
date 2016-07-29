@@ -15,113 +15,46 @@ $source_html = $response->body;
 
 echo matchRDF($source_html);
 echo strip_tags(matchauthor($source_html));
-//echo 'the matchbody is'.matchbody($source_html);
-
-/*
-echo 'the match list is'.matchlist(matchbody($source_html));
-*/
-
-//echo 'do I contain a table'.containstable(matchbody($source_html));
 
 $splarray = array();
 $tharray = array();
 
 if(containstable(matchbody($source_html)) == 1) {
-//  echo 'yes=======================================';
-//  echo 'psrse s'.parsetable(matchbody($source_html));
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
   array_pop($splarray);
-//  print_r($splarray);
   foreach ($splarray as $key => $value) {
      $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
-  //   echo 'this is the th';
-  //   print_r($splarrayth);
      array_push($tharray,$splarrayth[0]);
   }
 
-/*
-   foreach ($splarrayth as $key => $value) {
-     if($splarrayth[$key] == "Description") {
-        echo "It is a Description";
-/*       echo "It is a description";
-       $desc = $splarrayth[$key];
-       echo strip_tags($desc);
-       echo "It is a description".$desc; */
-//     }
-
-  /*   if($splarrayth[$key] == "List of Roadblocks") {
-       echo "It is a roadblock";
-  */
-          // split between the description and the list of roadblocks...
        foreach ($splarray as $key => $value) {
-          /*foreach($tharray as $keytwo => $valuetwo) {
 
            
 
 
-           if(preg_match('/'.preg_quote("{$tharray[$keytwo]}").'/',$splarray[$key],$matches)) {   
-               echo $matches[0].' is in "'.$splarray[$key].'" .'."\n";
-           }
-          } */
           
           if(preg_match('/Description/',$splarray[$key],$matches)) {
 
-//             echo 'The piggy Description is in "'.$splarray[$key].'" .'."\n";
-           //  $comment = strip_tags("{$splarray[$key]}");
              $comment = matchdescription("{$splarray[$key]}");
              echo 'rdfs:comment "'.$comment.'"'."\n";
-//             echo "\n".'end of the strip';
           }
         
 
           if(preg_match('/List of Roadblocks/',$splarray[$key],$matches)) {
 
-//             echo 'The elephant Description is in "'.$splarray[$key].'" .'."\n";
              $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
-//             $spltd = preg_split('/===break===/',"{$splarraytd}");
           }
- 
-            // print_r($splarraytd);
-         /*  if(preg_match('/Description/', $string, $match) {
-           //  echo 'I am a match';
-          } */        
-        //  echo 'The'.$key.'crazy match is'.$splarray[$key];
-        //  $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
-//        echo 'this is the descrition';
-
-     //  print_r($splarraytd);
           
       }
       
          array_pop($splarraytd);   
-//        echo 'the first td is'.$splarray[0];
  
         foreach ($splarraytd as $key => $value) {
-//         echo 'beginning of spltd'."\n";
-//           $spltd = preg_split('/===break===/',scrapetd($splarray[$key]));
            $spltd = preg_split('/===break===/',scrapetd($splarraytd[$key]));
          array_pop($spltd);
          print_r($spltd);
         }
     
-   //  }
-
- //  }
-
-/*
-// split between the description and the list of roadblocks...
-  foreach ($splarray as $key => $value) {
-     $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
-     echo 'this is the descrition';
-     print_r($splarraytd);
-  }
-
-  foreach ($splarraytd as $key => $value) {
-      $spltd = preg_split('/===break===/',scrapetd($splarray[$key]));
-       print_r($spltd);
-
-  }
-*/
 }
 
 
@@ -129,11 +62,9 @@ if(containstable(matchbody($source_html)) == 1) {
 
 function matchbody($string) {
     $srch = "#"     // start pattern
-    // . "^.*"   // start string and leading text
     . "<div id=\"main-content\" class=\"wiki-content\">"    // find the div
     . "(?<argument>.*)"        // get the string we want as 'argument'
     . "</rdf:RDF>"  // end div and spaces
-    // . ".*"    // whatever is left
     . "#siU";   // end string and end pattern
   if(preg_match($srch, $string, $match)) {
    $result = $match[1];
@@ -175,33 +106,18 @@ function parsetable($argument) {
   // $result = array();
    $result = '';
    $srch = "#"     // start pattern
-    // . "^.*"   // start string and leading text
     . "<tr"    // find the div
     . "(?<argument>.*)"        // get the string we want as 'argument'
     . "</tr>"  // end div and spaces
-    // . ".*"    // whatever is left
     . "#siU";   // end string and end pattern
 
 if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-      //    captureth($match['argument']);  
-      //    array_push($result,{$match['argument']}); 
-    //   $result = $result."Match $key: {$match['argument']}===break===";
          $result = $result."{$match['argument']}===break===";
-//         $rev = "{$match['argument']}";
-//        preg_match('/<th.*<\/th>/',$rev,$matches);
-  //       echo 'revto is'.$matches[0];
-  //       echo 'rev is'.$rev;
-  //       echo 'revto_is'.captureth($rev).'=====the th======';
-//         echo 'revtd_is'.capturetd($rev).'hello';
-         
-      //     $result = $result."Match $key: captureth({$match['argument']})\n"; 
       }
    } else {
-    // $result = NULL;
      $result = 'No joy!';
    }
-//   $result = strip_tags($result);
    return $result;
 
 
@@ -211,25 +127,14 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
 function captureth($argument) {
    $result = '';
       $srch = "#"     // start pattern
-    // . "^.*"   // start string and leading text
     . "<th.*class=\".*\">"    // find the div
     . "(?<argument>.*)"        // get the string we want as 'argument'
     . "</th>"  // end div and spaces
-    // . ".*"    // whatever is left
     . "#siU";   // end string and end pattern
 
-/*
-if(preg_match($srch,$argument,$matches)) {
-     $result = $matches['argument']."   ";
-   } else {
-      $result = 'No goy!';
-   }
-   return $result;
-*/
 
 if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-      //     $result = $result."Match $key: {$match['argument']}\n";
          $result = $result."{$match['argument']}===break===";
        }
    } else {
@@ -242,25 +147,14 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
 function capturetd($argument) {  
    $result = '';
    $srch = "#"     // start pattern
-    // . "^.*"   // start string and leading text
     . "<td.*class=\".*\">"    // find the div
     . "(?<argument>.*)"        // get the string we want as 'argument'
     . "</td>"  // end div and spaces
-    // . ".*"    // whatever is left
     . "#siU";   // end string and end pattern
 
-/*
-if(preg_match($srch,$argument,$matches)) {
-     $result = $matches['argument']."   ";
-   } else {
-      $result = 'No goy!';
-   }
-   return $result;
-*/
 
 if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-     //      $result = $result."Match $key: {$match['argument']}\n";
        $result = $result."{$match['argument']}===break===";
        }
    } else {
@@ -278,17 +172,13 @@ function scrapetd($argument) {
           . "<div class=\"details\">.*"
           . "<a href=\"(?<url>.*)\">(?<name>.*)</a>.*"
           . "<div class=\"label-details\">(?<contents>.*)</div>.*</div>"
-//          . "<div class =\"label-details\">(?<contents>.*)</div></div>"
           . "#siU";
   
   if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-     //      $result = $result."Match $key: {$match['argument']}\n";
-    //   $striphtmlfromtag = strip_tags("{$match['contents']}");
          $striphtmlfromtag = scrapetags("{$match['url']}","{$match['contents']}");
        $result = $result."lsi:roadblock <".$root."{$match['url']}> .\n"."<".$root."{$match['url']}> dct:title \"{$match['name']}\" .\n{$striphtmlfromtag}===break===";
 
-//    $result = $result."{$match['url']}..{$match['name']}..{$match['contents']}===break===";
        }
    } else {
      $result = 'No joy!';
@@ -325,9 +215,7 @@ function matchdescription($argument) {
            ."</p>"
            ."#siU";
     if(preg_match($srch, $argument, $match)) {
-//        print_r($match);
       $result = $match['description'];
-//      echo 'the result for the gglue'.$result;
     } else {
       $result = 'No joy!';
     }
@@ -347,27 +235,15 @@ function matchRDF($argument) {
            ."\".*" 
            ."</rdf:RDF>"
            ."#siU";
- 
-/*
-   $srch = "#"
-           ."<!--.*<rdf:RDF"
-           ."(?<rdfcontent>.*)"
-           ."</rdf:RDF>"
-           ."#siU";
-*/
 // match rdf:about and dc:title
         if(preg_match($srch, $argument, $match)) {
-//        print_r($match);
       $result = '<'.$match['rdfcontent'].'>'.' dc:title "'.$match['pagetitle']."\" .";
-//      echo 'the result for the gglue'.$result;
     } else {
       $result = 'No joy!';
     }
    return $result;       
 }
 
-// <li class="page-metadata-modification-info">
-// </li>
 
 function matchauthor($argument) {
      $months = array('January' => '01',
@@ -391,15 +267,6 @@ function matchauthor($argument) {
          ."(?<year>.*)"
          ."$"
          ."#siU";
-/*
-     if(preg_match_all($datesrch,$matchfive['modified'],$matches, PREG_SET_ORDER)) {
-       foreach ($matches as $key=>$match) {
-           $result = $result."{$match['year']}-{$match['month']}-{$match['day']}";
-       }
-     } else {
-       $result = 'No joy!';
-     }
-*/
 
    $result = '';
    $srch = "#"
