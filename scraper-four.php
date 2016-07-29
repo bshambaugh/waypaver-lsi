@@ -1,6 +1,10 @@
 <?php
+
+// include the requests libary
   include('./Requests/library/Requests.php');
 Requests::register_autoloader();
+
+// target the desired website
 
 //$root = 'http://lunarsettlement.org/';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
@@ -8,13 +12,19 @@ $url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
+
+// set the request headers
 $headers = array('Accept' => 'text/html');
+
+// perform a http get with requests
 $response = Requests::get($url,$headers);
 
+// save the response to a variable
 $source_html = $response->body;
 
-echo matchRDF($source_html);
-echo strip_tags(matchauthor($source_html));
+echo matchtitleinpageRDF($url,$source_html);
+//echo strip_tags(matchauthor($source_html));
+echo matchauthor($source_html);
 
 $splarray = array();
 $tharray = array();
@@ -36,7 +46,7 @@ if(containstable(matchbody($source_html)) == 1) {
           if(preg_match('/Description/',$splarray[$key],$matches)) {
 
              $comment = matchdescription("{$splarray[$key]}");
-             echo 'rdfs:comment "'.$comment.'"'."\n";
+             echo '<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
           }
         
 
@@ -52,7 +62,11 @@ if(containstable(matchbody($source_html)) == 1) {
         foreach ($splarraytd as $key => $value) {
            $spltd = preg_split('/===break===/',scrapetd($splarraytd[$key]));
          array_pop($spltd);
-         print_r($spltd);
+//         print_r($spltd);
+        }
+       
+        foreach($spltd as $key => $value) {
+           echo '<'.$url.'> '.$spltd[$key];
         }
     
 }
@@ -222,7 +236,7 @@ function matchdescription($argument) {
    return $result;
 }
 
-function matchRDF($argument) {
+function matchtitleinpageRDF($url,$argument) {
    $result = '';
 
    $srch = "#"
@@ -237,7 +251,8 @@ function matchRDF($argument) {
            ."#siU";
 // match rdf:about and dc:title
         if(preg_match($srch, $argument, $match)) {
-      $result = '<'.$match['rdfcontent'].'>'.' dc:title "'.$match['pagetitle']."\" .";
+//      $result = '<'.$match['rdfcontent'].'>'.' dc:title "'.$match['pagetitle']."\" .";
+        $result = '<'.$url.'>'.' dc:title "'.$match['pagetitle']."\" ."."\n";
     } else {
       $result = 'No joy!';
     }
@@ -309,30 +324,67 @@ function matchauthor($argument) {
     if(preg_match($srch, $argument, $match)) {
        $result = $match['author'];
        $wohtml = strip_tags($result); 
-       echo $wohtml; 
+//       echo $wohtml; 
+/// ......
+      if(preg_match($srchinsidefour,$result,$matchfive)) {
+      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
+    //    print_r($matchfive);
+      }
+
+      $resultmo = '';
+
+        if(preg_match_all($datesrch,$matchfive['modified'],$matches, PREG_SET_ORDER)) {
+       foreach ($matches as $key=>$match) {
+           $resultmo = $resultmo."{$match['year']}-{$match['month']}-{$match['day']}";
+       }
+     } else {
+       $resultmo = 'No joy!';
+     }
+
+//     echo $resultmo;
+
+
+      foreach($months as $key => $value) {
+    if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
+      $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
+//      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
+    }
+  }
+
+
+    } else {
+       $result = 'No joy!';
+    }
+
+
+// .........
     if(preg_match($srchinside,$wohtml,$matchtwo)) {
-        echo 'match two s '.$matchtwo['creator'].' modification is '.$matchtwo['mod'];
-        print_r($matchtwo); 
+    //    echo 'match two s '.$matchtwo['creator'].' modification is '.$matchtwo['mod'];
+  ///      print_r($matchtwo); 
       }
     if(preg_match($srchinsidetwo,$result,$matchthree)) {
         echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n";
-        echo  '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
-        echo 'prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole :author'."\n ];";
-        echo 'match four is '.$matchthree['webid']."\n";
-        print_r($matchthree); 
+        echo '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
+        echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole :author . ] .'."\n";
+//        echo 'match four is '.$matchthree['webid']."\n";
+//        print_r($matchthree); 
       }
 
      if(preg_match($srchinsidethree,$result,$matchfour)) {
         echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
         echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
-        echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
-        print_r($matchfour);
+        echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole :editor ;'."\n"
+             .'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime . ] .'."\n";
+  //      echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
+  //      print_r($matchfour);
       } 
-    
+
+/*    
        if(preg_match($srchinsidefour,$result,$matchfive)) {
-        echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
-        print_r($matchfive);
+      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
+    //    print_r($matchfive);
       }
 
       $resultmo = '';      
@@ -345,13 +397,13 @@ function matchauthor($argument) {
        $resultmo = 'No joy!';
      }
 
-     echo $resultmo;
+//     echo $resultmo;
 
 
       foreach($months as $key => $value) {
     if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
       $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
-      echo '"'.$respect.'"^^xsd:dateTime';
+      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
     }
   }
 
@@ -359,6 +411,8 @@ function matchauthor($argument) {
     } else {
        $result = 'No joy!';
     }
-     return $result;
+
+*/
+   //  return $result;
 
 } 
