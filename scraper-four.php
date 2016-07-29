@@ -7,8 +7,8 @@ Requests::register_autoloader();
 // target the desired website
 
 //$root = 'http://lunarsettlement.org/';
-$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
-//$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
+$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
@@ -375,12 +375,12 @@ function matchauthor($argument) {
         echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
         echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
         echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole :editor ;'."\n"
-             .'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime . ] .'."\n";
+             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole :editor . ] .'."\n";
   //      echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
   //      print_r($matchfour);
       } 
 
+echo '<'.$url.'>'.' :lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
 /*    
        if(preg_match($srchinsidefour,$result,$matchfive)) {
       //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
