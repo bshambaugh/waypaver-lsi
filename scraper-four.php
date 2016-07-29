@@ -22,13 +22,16 @@ $response = Requests::get($url,$headers);
 // save the response to a variable
 $source_html = $response->body;
 
+// Pull out the title from the RDF
 echo matchtitleinpageRDF($url,$source_html);
 //echo strip_tags(matchauthor($source_html));
+// match the authorship information
 echo matchauthor($source_html);
 
 $splarray = array();
 $tharray = array();
 
+// return the roadblocks...
 if(containstable(matchbody($source_html)) == 1) {
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
   array_pop($splarray);
@@ -366,7 +369,7 @@ function matchauthor($argument) {
         echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n";
         echo '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
         echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole :author . ] .'."\n";
+             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
 //        echo 'match four is '.$matchthree['webid']."\n";
 //        print_r($matchthree); 
       }
@@ -375,12 +378,12 @@ function matchauthor($argument) {
         echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
         echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
         echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole :editor . ] .'."\n";
+             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n";
   //      echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
   //      print_r($matchfour);
       } 
 
-echo '<'.$url.'>'.' :lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
+echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
 /*    
        if(preg_match($srchinsidefour,$result,$matchfive)) {
       //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
