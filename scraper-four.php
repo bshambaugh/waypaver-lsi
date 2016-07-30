@@ -8,10 +8,10 @@ Requests::register_autoloader();
 
 //$root = 'http://lunarsettlement.org/';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
-//$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
+$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
-$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
 
 // set the request headers
 $headers = array('Accept' => 'text/html');
@@ -23,16 +23,27 @@ $response = Requests::get($url,$headers);
 $source_html = $response->body;
 
 $root = 'http://lunarsettlementindex.org';
+// global storage string...
+$global_result = '';
 
 // Pull out the title from the RDF
-echo matchtitleinpageRDF($url,$source_html);
+// [1] echo to pull into global turtle file
+$global_result = matchtitleinpageRDF($url,$source_html);
+//echo $global_result;
+//echo  matchtitleinpageRDF($url,$source_html);
 //echo strip_tags(matchauthor($source_html));
 // match the authorship information
-echo matchauthor($url,$root,$source_html);
+// [2] echo to pull into global turtle file
+$global_result = $global_result.matchauthor($url,$root,$source_html);
+//echo $global_result;
+// echo matchauthor($url,$root,$source_html);
 
 $splarray = array();
 $tharray = array();
 
+$local_table_result = '';
+$local_table_result_s1 = '';
+$local_table_result_s2 = '';
 
 // return the roadblocks...
 if(containstable(matchbody($source_html)) == 1) {
@@ -45,18 +56,20 @@ if(containstable(matchbody($source_html)) == 1) {
      $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
      array_push($tharray,$splarrayth[0]);
   }
-*/
+*/   
+      
        foreach ($splarray as $key => $value) {
-
-           
-
 
         // Find if the table row contains a description of the Roadblocks,
         // then capture and display its contents  
           if(preg_match('/Description/',$splarray[$key],$matches)) {
 
              $comment = matchdescription("{$splarray[$key]}");
-             echo '<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
+             // [3] echo to pull into global turtle file
+             $local_table_result_s1 = $local_table_result_s1.'<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
+           //  echo $local_table_result,"\n";
+    //         echo $global_result.'is the global result'."\n";
+//             echo '<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
           }
         
        // Find if the table row contains a List of Roadblocks, then capture the contents
@@ -77,16 +90,25 @@ if(containstable(matchbody($source_html)) == 1) {
        
        // print out the results of the contents of the roadblocks
         foreach($spltd as $key => $value) {
-           echo '<'.$url.'> '.$spltd[$key];
+          // [4] echo to pull into global turtle file
+           //$global_result = $global_result.'<'.$url.'> '.$spltd[$key];
+           $local_table_result_s2 = $local_table_result_s2.'<'.$url.'> '.$spltd[$key];
+  //         echo '<'.$url.'> '.$spltd[$key];
         }
-    
+       $local_table_result = $local_table_result_s1.$local_table_result_s2;  
+      
 } else {
-  
-  echo matchlist($root,matchbody($source_html));
+  // Alternative [3],[4] echo to pull into the turtle file
+  //$global_result = $global_result.matchlist($root,matchbody($source_html));
+  $local_table_result = $local_table_result.matchlist($root,matchbody($source_html));
+//  echo matchlist($root,matchbody($source_html));
 
-}
+} 
 
+//echo 'the local table result'.$local_table_result."\n";
 
+$global_result = $global_result.$local_table_result;
+echo 'the global result is'.$global_result;
 
 
 function matchbody($string) {
@@ -342,6 +364,7 @@ function matchauthor($url,$root,$argument) {
                   ."</a>"
                   ."#siU";
 
+      $local_result = '';
 //    $url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //    $root = 'http://lunarsettlementindex.org';
     if(preg_match($srch, $argument, $match)) {
@@ -395,24 +418,41 @@ function matchauthor($url,$root,$argument) {
   ///      print_r($matchtwo); 
       }
     if(preg_match($srchinsidetwo,$result,$matchthree)) {
-        echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n";
-        echo '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
-        echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
+       
+      $local_result = $local_result.'<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n".
+      '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n".
+      '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+      'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
+
+      
+//        echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n";
+  //      echo '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
+   //     echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+     //        'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
 //        echo 'match four is '.$matchthree['webid']."\n";
 //        print_r($matchthree); 
       }
 
      if(preg_match($srchinsidethree,$result,$matchfour)) {
-        echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
-        echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
-        echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-             'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n";
+     
+       $local_result = $local_result.'<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n".
+       '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n".
+       '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+       'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n"; 
+     
+
+     //   echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
+     //   echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
+     //   echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
+     //        'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n";
   //      echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
   //      print_r($matchfour);
       } 
 
-      echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
-   //  return $result;
+      $local_result = $local_result.'<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
 
+   //   echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
+   //  return $result;
+    //  echo '====== local result======'.$local_result.'======local result======='; 
+      return $local_result;
 } 
