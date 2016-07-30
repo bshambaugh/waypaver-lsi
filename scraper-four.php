@@ -35,11 +35,14 @@ $tharray = array();
 if(containstable(matchbody($source_html)) == 1) {
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
   array_pop($splarray);
+
+// Use this code to match the table row descriptions. For now, hardcoding. 
+/*
   foreach ($splarray as $key => $value) {
      $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
      array_push($tharray,$splarrayth[0]);
   }
-
+*/
        foreach ($splarray as $key => $value) {
 
            
