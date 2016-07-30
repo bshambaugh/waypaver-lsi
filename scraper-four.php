@@ -22,11 +22,13 @@ $response = Requests::get($url,$headers);
 // save the response to a variable
 $source_html = $response->body;
 
+$root = 'http://lunarsettlementindex.org';
+
 // Pull out the title from the RDF
 echo matchtitleinpageRDF($url,$source_html);
 //echo strip_tags(matchauthor($source_html));
 // match the authorship information
-echo matchauthor($source_html);
+echo matchauthor($url,$root,$source_html);
 
 $splarray = array();
 $tharray = array();
@@ -36,7 +38,7 @@ if(containstable(matchbody($source_html)) == 1) {
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
   array_pop($splarray);
 
-// Use this code to match the table row descriptions. For now, hardcoding. 
+// Use this code to match the table row descriptions. For now, hardcoding for the Table for Roadblocks. 
 /*
   foreach ($splarray as $key => $value) {
      $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
@@ -48,14 +50,15 @@ if(containstable(matchbody($source_html)) == 1) {
            
 
 
-          
+        // Find if the table row contains a description of the Roadblocks,
+        // then capture and display its contents  
           if(preg_match('/Description/',$splarray[$key],$matches)) {
 
              $comment = matchdescription("{$splarray[$key]}");
              echo '<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
           }
         
-
+       // Find if the table row contains a List of Roadblocks, then capture the contents
           if(preg_match('/List of Roadblocks/',$splarray[$key],$matches)) {
 
              $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
@@ -66,11 +69,12 @@ if(containstable(matchbody($source_html)) == 1) {
          array_pop($splarraytd);   
  
         foreach ($splarraytd as $key => $value) {
-           $spltd = preg_split('/===break===/',scrapetd($splarraytd[$key]));
+           $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
          array_pop($spltd);
 //         print_r($spltd);
         }
        
+       // print out the results of the contents of the roadblocks
         foreach($spltd as $key => $value) {
            echo '<'.$url.'> '.$spltd[$key];
         }
@@ -185,8 +189,8 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
 
 }
 
-function scrapetd($argument) {
-  $root = 'http://lunarsettlement.org';
+function scrapetd($root,$argument) {
+//  $root = 'http://lunarsettlement.org';
   $result = '';
   $srch = "#"
           . "<div class=\"details\">.*"
@@ -196,7 +200,7 @@ function scrapetd($argument) {
   
   if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-         $striphtmlfromtag = scrapetags("{$match['url']}","{$match['contents']}");
+         $striphtmlfromtag = scrapetags($root,"{$match['url']}","{$match['contents']}");
        $result = $result."lsi:roadblock <".$root."{$match['url']}> .\n"."<".$root."{$match['url']}> dct:title \"{$match['name']}\" .\n{$striphtmlfromtag}===break===";
 
        }
@@ -206,8 +210,8 @@ function scrapetd($argument) {
    return $result;
 }
 
-function scrapetags($url,$body) {
-   $root = 'http://lunarsettlement.org';
+function scrapetags($root,$url,$body) {
+//   $root = 'http://lunarsettlement.org';
    $result = '';
    $srch = "#"
            ."href=\"(?<matchingurl>.*)\" "
@@ -266,7 +270,7 @@ function matchtitleinpageRDF($url,$argument) {
 }
 
 
-function matchauthor($argument) {
+function matchauthor($url,$root,$argument) {
      $months = array('January' => '01',
                  'February' => '02',
                  'March' => '03',
@@ -325,8 +329,8 @@ function matchauthor($argument) {
                   ."</a>"
                   ."#siU";
 
-    $url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
-    $root = 'http://lunarsettlementindex.org';
+//    $url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
+//    $root = 'http://lunarsettlementindex.org';
     if(preg_match($srch, $argument, $match)) {
        $result = $match['author'];
        $wohtml = strip_tags($result); 
