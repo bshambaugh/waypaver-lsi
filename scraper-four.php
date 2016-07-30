@@ -8,10 +8,10 @@ Requests::register_autoloader();
 
 //$root = 'http://lunarsettlement.org/';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
-$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
-//$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
+$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
 
 // set the request headers
 $headers = array('Accept' => 'text/html');
@@ -276,18 +276,18 @@ function matchtitleinpageRDF($url,$argument) {
 
 
 function matchauthor($url,$root,$argument) {
-     $months = array('January' => '01',
-                 'February' => '02',
-                 'March' => '03',
-                 'April' => '04',
+     $months = array('Jan' => '01',
+                 'Feb' => '02',
+                 'Mar' => '03',
+                 'Apr' => '04',
                  'May' => '05',
-                 'June' => '06',
-                 'July' => '07',
-                 'August' => '08',
-                 'September' => '09',
-                 'October' => '10',
-                 'November' => '11',
-                 'December' => '12');
+                 'Jun' => '06',
+                 'Jul' => '07',
+                 'Aug' => '08',
+                 'Sep' => '09',
+                 'Oct' => '10',
+                 'Nov' => '11',
+                 'Dec' => '12');
 
      $datesrch = "#"
          ."(?<month>.*)"
@@ -368,7 +368,6 @@ function matchauthor($url,$root,$argument) {
 
       foreach($months as $key => $value) {
     if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
-         echo 'hello'."\n";
       $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
 //      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
     }
