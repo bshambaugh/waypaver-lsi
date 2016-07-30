@@ -82,7 +82,7 @@ if(containstable(matchbody($source_html)) == 1) {
     
 } else {
   
-  echo 'the match list is'.matchlist(matchbody($source_html));
+  echo matchlist($root,matchbody($source_html));
 
 }
 
@@ -103,14 +103,22 @@ function matchbody($string) {
    return $result;
  }
 
-function matchlist($argument) {
+function matchlist($root,$argument) {
    $result = '';
    $searchlist = "#"
               ."<li><a href=\"(?<url>.*)\">(?<name>.*)</a></li>"
               ."#siU";
    if(preg_match_all($searchlist,$argument,$matches, PREG_SET_ORDER)) {
        foreach ($matches as $key=>$match) {
-           $result = $result."Match $key: <a href=\"{$match['url']}\">{$match['name']}</a>\n";
+
+
+//             $result = $result.$match['url'];
+
+             $result = $result.'<'.$root.$match['url'].'> a lsi:RoadblockCategory .'."\n".
+                       '<'.$root.$match['url'].'> dct:title '.'"'.$match['name'].'" .'."\n";
+
+
+//           $result = $result."Match $key: <a href=\"{$match['url']}\">{$match['name']}</a>\n";
        }
    } else {
      $result = 'No joy!';
@@ -405,38 +413,6 @@ function matchauthor($url,$root,$argument) {
       } 
 
       echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
-/*    
-       if(preg_match($srchinsidefour,$result,$matchfive)) {
-      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
-    //    print_r($matchfive);
-      }
-
-      $resultmo = '';      
-
-        if(preg_match_all($datesrch,$matchfive['modified'],$matches, PREG_SET_ORDER)) {
-       foreach ($matches as $key=>$match) {
-           $resultmo = $resultmo."{$match['year']}-{$match['month']}-{$match['day']}";
-       }
-     } else {
-       $resultmo = 'No joy!';
-     }
-
-//     echo $resultmo;
-
-
-      foreach($months as $key => $value) {
-    if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
-      $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
-      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
-    }
-  }
-
-
-    } else {
-       $result = 'No joy!';
-    }
-
-*/
    //  return $result;
 
 } 
