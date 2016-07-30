@@ -33,6 +33,7 @@ echo matchauthor($url,$root,$source_html);
 $splarray = array();
 $tharray = array();
 
+
 // return the roadblocks...
 if(containstable(matchbody($source_html)) == 1) {
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
@@ -79,6 +80,10 @@ if(containstable(matchbody($source_html)) == 1) {
            echo '<'.$url.'> '.$spltd[$key];
         }
     
+} else {
+  
+  echo 'the match list is'.matchlist(matchbody($source_html));
+
 }
 
 
@@ -336,11 +341,17 @@ function matchauthor($url,$root,$argument) {
        $wohtml = strip_tags($result); 
 //       echo $wohtml; 
 /// ......
-      if(preg_match($srchinsidefour,$result,$matchfive)) {
-      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
-    //    print_r($matchfive);
-      }
 
+//      echo $result;   
+  
+    preg_match($srchinsidefour,$result,$matchfive);
+
+/* 
+    if(preg_match($srchinsidefour,$result,$matchfive)) {
+      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
+        print_r($matchfive);
+      }
+*/
       $resultmo = '';
 
         if(preg_match_all($datesrch,$matchfive['modified'],$matches, PREG_SET_ORDER)) {
@@ -353,9 +364,11 @@ function matchauthor($url,$root,$argument) {
 
 //     echo $resultmo;
 
+//     print_r($months);
 
       foreach($months as $key => $value) {
     if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
+         echo 'hello'."\n";
       $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
 //      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
     }
@@ -366,6 +379,8 @@ function matchauthor($url,$root,$argument) {
        $result = 'No joy!';
     }
 
+
+//echo 'this was the result'.$result."\n";
 
 // .........
     if(preg_match($srchinside,$wohtml,$matchtwo)) {
@@ -390,7 +405,7 @@ function matchauthor($url,$root,$argument) {
   //      print_r($matchfour);
       } 
 
-echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
+      echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
 /*    
        if(preg_match($srchinsidefour,$result,$matchfive)) {
       //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
