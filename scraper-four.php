@@ -37,6 +37,13 @@ $global_result = $global_result.matchauthor($url,$root,$source_html);
 $splarray = array();
 $tharray = array();
 
+$tabletype = array('Roadblocks' => array('Description','List of Roadblocks'),
+               'Roadblock' => array('Description','Roadblock Type','Priority (1-5)'),
+               'Solution' => array('Solution Description','Cost Drivers','Average Est Investment Cost','Average Est Time to Maturity','Commercial Status:','Related Industries/Fields','Preliminary Tech Required','Est Time to Maturity (in years)','Funding Opportunities'),
+'SpecificSolution' => array('Current Player(s)','Progress Status','Est Investment Cost',
+'Est Time to Maturity','Component Systems'));
+
+
 $local_table_result = '';
 $local_table_result_s1 = '';
 $local_table_result_s2 = '';
