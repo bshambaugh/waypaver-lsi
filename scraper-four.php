@@ -29,14 +29,10 @@ $global_result = '';
 // Pull out the title from the RDF
 // [1] echo to pull into global turtle file
 $global_result = matchtitleinpageRDF($url,$source_html);
-//echo $global_result;
-//echo  matchtitleinpageRDF($url,$source_html);
-//echo strip_tags(matchauthor($source_html));
+
 // match the authorship information
 // [2] echo to pull into global turtle file
 $global_result = $global_result.matchauthor($url,$root,$source_html);
-//echo $global_result;
-// echo matchauthor($url,$root,$source_html);
 
 $splarray = array();
 $tharray = array();
@@ -67,9 +63,6 @@ if(containstable(matchbody($source_html)) == 1) {
              $comment = matchdescription("{$splarray[$key]}");
              // [3] echo to pull into global turtle file
              $local_table_result_s1 = $local_table_result_s1.'<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
-           //  echo $local_table_result,"\n";
-    //         echo $global_result.'is the global result'."\n";
-//             echo '<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
           }
         
        // Find if the table row contains a List of Roadblocks, then capture the contents
@@ -91,24 +84,21 @@ if(containstable(matchbody($source_html)) == 1) {
        // print out the results of the contents of the roadblocks
         foreach($spltd as $key => $value) {
           // [4] echo to pull into global turtle file
-           //$global_result = $global_result.'<'.$url.'> '.$spltd[$key];
            $local_table_result_s2 = $local_table_result_s2.'<'.$url.'> '.$spltd[$key];
-  //         echo '<'.$url.'> '.$spltd[$key];
         }
+
        $local_table_result = $local_table_result_s1.$local_table_result_s2;  
       
 } else {
   // Alternative [3],[4] echo to pull into the turtle file
-  //$global_result = $global_result.matchlist($root,matchbody($source_html));
   $local_table_result = $local_table_result.matchlist($root,matchbody($source_html));
-//  echo matchlist($root,matchbody($source_html));
 
 } 
 
 //echo 'the local table result'.$local_table_result."\n";
 
 $global_result = $global_result.$local_table_result;
-echo 'the global result is'.$global_result;
+echo $global_result;
 
 
 function matchbody($string) {
@@ -134,14 +124,10 @@ function matchlist($root,$argument) {
        foreach ($matches as $key=>$match) {
 
 
-//             $result = $result.$match['url'];
-
              $result = $result.'<'.$root.$match['url'].'> a lsi:RoadblockCategory .'."\n".
                        '<'.$root.$match['url'].'> dct:title '.'"'.$match['name'].'" .'."\n";
 
-
-//           $result = $result."Match $key: <a href=\"{$match['url']}\">{$match['name']}</a>\n";
-       }
+     }
    } else {
      $result = 'No joy!';
    }
@@ -151,11 +137,9 @@ function matchlist($root,$argument) {
 function containstable($argument) {
   $result = '';
   if(preg_match('/<table class="confluenceTable">/', $argument, $matches)) {
-//    $result = $matches[0]; 
     $result = true;
   } else {
     $result = false;
-  //  $result = 'No joy!';   
  }
   return $result;
 }
@@ -296,7 +280,6 @@ function matchtitleinpageRDF($url,$argument) {
            ."#siU";
 // match rdf:about and dc:title
         if(preg_match($srch, $argument, $match)) {
-//      $result = '<'.$match['rdfcontent'].'>'.' dc:title "'.$match['pagetitle']."\" .";
         $result = '<'.$url.'>'.' dc:title "'.$match['pagetitle']."\" ."."\n";
     } else {
       $result = 'No joy!';
@@ -365,24 +348,12 @@ function matchauthor($url,$root,$argument) {
                   ."#siU";
 
       $local_result = '';
-//    $url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
-//    $root = 'http://lunarsettlementindex.org';
     if(preg_match($srch, $argument, $match)) {
        $result = $match['author'];
        $wohtml = strip_tags($result); 
-//       echo $wohtml; 
-/// ......
-
-//      echo $result;   
   
     preg_match($srchinsidefour,$result,$matchfive);
 
-/* 
-    if(preg_match($srchinsidefour,$result,$matchfive)) {
-      //  echo 'prov:startedAtTime "'.$matchfive['modified'].'" .'."\n";
-        print_r($matchfive);
-      }
-*/
       $resultmo = '';
 
         if(preg_match_all($datesrch,$matchfive['modified'],$matches, PREG_SET_ORDER)) {
@@ -393,14 +364,9 @@ function matchauthor($url,$root,$argument) {
        $resultmo = 'No joy!';
      }
 
-//     echo $resultmo;
-
-//     print_r($months);
-
       foreach($months as $key => $value) {
     if(preg_match('/'.preg_quote($key).'/',$result,$matches)) {
       $respect = preg_replace('/'.preg_quote($key).'/',$months[$key],$resultmo);
-//      echo 'prov:startedAtTime '.'"'.$respect.'"^^xsd:dateTime .';
     }
   }
 
@@ -424,13 +390,6 @@ function matchauthor($url,$root,$argument) {
       '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
       'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
 
-      
-//        echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> . \n";
-  //      echo '<'.$root.preg_replace('/[ \n]*/','',$matchthree['webid']).'> foaf:name "'.$matchthree['name'].'" .'."\n";
-   //     echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-     //        'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchthree['webid'])."> ;\n".'prov:hadRole lsi:author ] .'."\n";
-//        echo 'match four is '.$matchthree['webid']."\n";
-//        print_r($matchthree); 
       }
 
      if(preg_match($srchinsidethree,$result,$matchfour)) {
@@ -439,20 +398,9 @@ function matchauthor($url,$root,$argument) {
        '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n".
        '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
        'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n"; 
-     
-
-     //   echo '<'.$url.'>'.' prov:wasAttributedTo <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> . \n";
-     //   echo '<'.$root.preg_replace('/[ \n]*/','',$matchfour['webide']).'> foaf:name "'.$matchfour['named'].'" .'."\n";
-     //   echo '<'.$url.'>'.' prov:qualifiedAttribution ['."\n".'a prov:Attribution;'."\n".
-     //        'prov:agent <'.$root.preg_replace('/[ \n]*/','',$matchfour['webide'])."> ;\n".'prov:hadRole lsi:editor ] .'."\n";
-  //      echo 'match three is '.preg_replace('/ /','',$matchfour['webide']);
-  //      print_r($matchfour);
       } 
 
       $local_result = $local_result.'<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
 
-   //   echo '<'.$url.'>'.' lsi:lastmodified '.'"'.$respect.'"^^xsd:dateTime . '."\n";
-   //  return $result;
-    //  echo '====== local result======'.$local_result.'======local result======='; 
       return $local_result;
 } 
