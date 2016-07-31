@@ -37,10 +37,10 @@ $global_result = $global_result.matchauthor($url,$root,$source_html);
 $splarray = array();
 $tharray = array();
 
-$tabletype = array('Roadblocks' => array('Description','List of Roadblocks'),
+$tabletype = array('List of Roadblocks' => array('Description','List of Roadblocks'),
                'Roadblock' => array('Description','Roadblock Type','Priority (1-5)'),
                'Solution' => array('Solution Description','Cost Drivers','Average Est Investment Cost','Average Est Time to Maturity','Commercial Status:','Related Industries/Fields','Preliminary Tech Required','Est Time to Maturity (in years)','Funding Opportunities'),
-'SpecificSolution' => array('Current Player(s)','Progress Status','Est Investment Cost',
+'Specific Solution' => array('Current Player(s)','Progress Status','Est Investment Cost',
 'Est Time to Maturity','Component Systems'));
 
 
@@ -48,20 +48,36 @@ $local_table_result = '';
 $local_table_result_s1 = '';
 $local_table_result_s2 = '';
 
+$temparray = array();
+$tabletypekey = '';
+
 // return the roadblocks...
 if(containstable(matchbody($source_html)) == 1) {
   $splarray = preg_split('/===break===/',parsetable(matchbody($source_html)));
   array_pop($splarray);
 
 // Use this code to match the table row descriptions. For now, hardcoding for the Table for Roadblocks. 
-/*
-  foreach ($splarray as $key => $value) {
-     $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
-     array_push($tharray,$splarrayth[0]);
-  }
-*/   
-      
-       foreach ($splarray as $key => $value) {
+
+     foreach ($splarray as $key => $value) {
+        $splarrayth = preg_split('/===break===/',captureth($splarray[$key])); 
+        array_push($tharray,$splarrayth[0]);
+      }
+
+     foreach($tabletype as $key => $value) {
+        foreach($value as $key2 => $valuetwo) {
+            array_push($temparray,$value[$key2]);
+      }
+         $result = array_diff($temparray,$tharray);
+       if($result == NULL) {
+          $tabletypekey = $key;
+        }
+  $temparray = [];
+}
+//  echo 'the table type is: '.$tabletypekey;
+
+/// For the case where the table type is a List of Roadblocks:
+if($tabletypekey == 'List of Roadblocks') {        
+ foreach ($splarray as $key => $value) {
 
         // Find if the table row contains a description of the Roadblocks,
         // then capture and display its contents  
@@ -95,7 +111,7 @@ if(containstable(matchbody($source_html)) == 1) {
         }
 
        $local_table_result = $local_table_result_s1.$local_table_result_s2;  
-      
+  }    
 } else {
   // Alternative [3],[4] echo to pull into the turtle file
   $local_table_result = $local_table_result.matchlist($root,matchbody($source_html));
