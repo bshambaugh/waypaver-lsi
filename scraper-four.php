@@ -7,9 +7,9 @@ Requests::register_autoloader();
 // target the desired website
 
 //$root = 'http://lunarsettlement.org/';
-$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
 //$url = 'http://lunarsettlementindex.org/display/LSI/X-Rays';
-//$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
+$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
 // $url = 'http://lunarsettlementindex.org/display/LSI/Bone+Mass+Monitoring';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
@@ -42,7 +42,7 @@ $tharray = array();
 
 $tabletype = array('List of Roadblocks' => array('Description','List of Roadblocks'),
                'Roadblock' => array('Description','Roadblock Type','Priority (1-5)'),
-               'Solution' => array('Solution Description','Cost Drivers','Average Est Investment Cost','Average Est Time to Maturity','Commercial Status:','Related Industries/Fields','Preliminary Tech Required','Est Time to Maturity (in years)','Funding Opportunities'),
+               'Solution Category' => array('Solution Description','Cost Drivers','Average Est Investment Cost','Average Est Time to Maturity','Commercial Status:','Related Industries/Fields','Preliminary Tech Required','Est Time to Maturity (in years)','Funding Opportunities'),
 'Specific Solution' => array('Current Player(s)','Progress Status','Est Investment Cost',
 'Est Time to Maturity','Component Systems'));
 
@@ -50,6 +50,7 @@ $tabletype = array('List of Roadblocks' => array('Description','List of Roadbloc
 $local_table_result = '';
 $local_table_result_s1 = '';
 $local_table_result_s2 = '';
+$local_table_result_s3 = '';
 
 $temparray = array();
 $tabletypekey = '';
@@ -164,12 +165,21 @@ if($tabletypekey == 'List of Roadblocks') {
               }
               
               } 
-              
-            }
+             //  $anotherresult = matchtdtable($root,$splarray[$key]);  
+//              echo 'this is another result '.matchtdtable($root,$splarray[$key]);
+//              echo 'tis is the end of the result'."\n";
+           }
              //  echo $local_table_result_s2.'is awesome:'."\n";
            //}
 
-  echo '<'.$url.'> '.'lsi:roadblockType '.'"'.$local_table_result_s2.'" .'."\n";
+              //  $anotherresult = matchtdtable($root,$splarray[$key]);  
+//             echo 'this is another result '.matchtdtable($root,$splarray[$key]);
+//              echo $splarray[$key].'....'."\n";
+//              echo 'tis is the end of the result'."\n";
+
+
+ //  echo '<'.$url.'> '.'lsi:roadblockType '.'"'.$local_table_result_s2.'" .'."\n";
+//  echo 'this is another result '.$anotherresult."\n";
 
    // Priority (1-5)
    // Find if the table row contains a List of Roadblocks, then capture the contents
@@ -190,14 +200,14 @@ if($tabletypekey == 'List of Roadblocks') {
 
                   foreach($spltd as $key => $value) {
                  // [4] echo to pull into global turtle file
-                 $local_table_result_s2 = $local_table_result_s2.
+                 $local_table_result_s3 = $local_table_result_s2.
                                        '<'.$url.'> '.$spltd[$key];
                }
 
              }
               if($spltd == NULL) {
              //   echo $splarraytd[$key].'is a test';
-                $local_table_result_s2 = strip_tags($splarraytd[$key]);
+                $local_table_result_s3 = strip_tags($splarraytd[$key]);
               }
 
               } 
@@ -207,32 +217,25 @@ if($tabletypekey == 'List of Roadblocks') {
 
           }
 
-       echo '<'.$url.'>'.'lsi:priority "'.$local_table_result_s2.'"^^xsd:integer .'."\n";
+// comment this out temporarily
+  //   echo '<'.$url.'>'.'lsi:priority "'.$local_table_result_s3.'"^^xsd:integer .'."\n";
 
-
+     $local_table_result = $local_table_result_s1.
+          '<'.$url.'> '.'lsi:roadblockType '.'"'.$local_table_result_s2.'" .'."\n".
+          '<'.$url.'>'.'lsi:priority "'.$local_table_result_s3.'"^^xsd:integer .'."\n";
     }
 
    //   array_pop($splarraytd);
 
-    echo 'the roadblock description is'.$local_table_result_s1;
-   //  print_r($splarraytd);
+  //  echo 'the roadblock description is'.$local_table_result_s1."\n";
+  //  echo 'the roadblock type is'.$local_table_result_s2."\n";
+  //  echo 'the roadblock priority is'.$local_table_result_s3."\n";
+  //  echo 'break'."\n";
+  //  echo $local_table_result;
 
-   //  echo 'This is a Roadblock'."\n";
-
-     // Find if the table row contains a List of Roadblocks, then capture the contents
-
-/*
-   $spltd3 = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
-         array_pop($spltd3);
-
-
-//            print_r($splarray);
-
-     print_r($spltd3);
-*/
   }    
 
-  if($tabletypekey == 'Solution') {
+  if($tabletypekey == 'Solution Category') {
      echo '==========This is a Solution=========='."\n";
   } 
 
@@ -247,10 +250,46 @@ if($tabletypekey == 'List of Roadblocks') {
 
 } 
 
-//echo 'the local table result'.$local_table_result."\n";
+//echo  'the local table result'.$local_table_result."\n";
 
 $global_result = $global_result.$local_table_result;
 echo $global_result;
+
+function matchtdtable($root,$arrayelement) {
+ $local_result = '';  
+ if(preg_match('/Roadblock Type/',$arrayelement,$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($arrayelement));
+            array_pop($splarraytd);
+            print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_result = $local_table_result_s2.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+             //   echo $splarraytd[$key].'is a test';
+                $local_result = strip_tags($splarraytd[$key]);
+              }
+
+              } 
+
+   }
+
+     return $local_result;
+}
 
 
 function matchbody($string) {
