@@ -8,12 +8,13 @@ Requests::register_autoloader();
 
 //$root = 'http://lunarsettlement.org/';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
-//$url = 'http://lunarsettlementindex.org/display/LSI/X-Rays';
-$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
+// $url = 'http://lunarsettlementindex.org/display/LSI/X-Rays';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Bone+Mass+Monitoring';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
 // $url = 'http://lunarsettlementindex.org/display/LSI/Bone+Mass+Monitoring';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
-//$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
+$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
 
 // set the request headers
@@ -51,6 +52,13 @@ $local_table_result = '';
 $local_table_result_s1 = '';
 $local_table_result_s2 = '';
 $local_table_result_s3 = '';
+$local_table_result_s4 = '';
+$local_table_result_s5 = '';
+$local_table_result_s6 = '';
+$local_table_result_s7 = '';
+$local_table_result_s8 = '';
+$local_table_result_s9 = '';
+
 
 $temparray = array();
 $tabletypekey = '';
@@ -77,9 +85,13 @@ if(containstable(matchbody($source_html)) == 1) {
         }
   $temparray = [];
 }
+
+// comment this out when not testing
+/*
   echo 'the table type is: '.$tabletypekey."\n";
   echo 'the th array is'."\n";
   print_r($tharray);
+*/
 
 /// For the case where the table type is a List of Roadblocks:
 if($tabletypekey == 'List of Roadblocks') {        
@@ -165,17 +177,7 @@ if($tabletypekey == 'List of Roadblocks') {
               }
               
               } 
-             //  $anotherresult = matchtdtable($root,$splarray[$key]);  
-//              echo 'this is another result '.matchtdtable($root,$splarray[$key]);
-//              echo 'tis is the end of the result'."\n";
            }
-             //  echo $local_table_result_s2.'is awesome:'."\n";
-           //}
-
-              //  $anotherresult = matchtdtable($root,$splarray[$key]);  
-//             echo 'this is another result '.matchtdtable($root,$splarray[$key]);
-//              echo $splarray[$key].'....'."\n";
-//              echo 'tis is the end of the result'."\n";
 
 
  //  echo '<'.$url.'> '.'lsi:roadblockType '.'"'.$local_table_result_s2.'" .'."\n";
@@ -200,13 +202,12 @@ if($tabletypekey == 'List of Roadblocks') {
 
                   foreach($spltd as $key => $value) {
                  // [4] echo to pull into global turtle file
-                 $local_table_result_s3 = $local_table_result_s2.
+                 $local_table_result_s3 = $local_table_result_s3.
                                        '<'.$url.'> '.$spltd[$key];
                }
 
              }
               if($spltd == NULL) {
-             //   echo $splarraytd[$key].'is a test';
                 $local_table_result_s3 = strip_tags($splarraytd[$key]);
               }
 
@@ -217,51 +218,78 @@ if($tabletypekey == 'List of Roadblocks') {
 
           }
 
-// comment this out temporarily
-  //   echo '<'.$url.'>'.'lsi:priority "'.$local_table_result_s3.'"^^xsd:integer .'."\n";
-
      $local_table_result = $local_table_result_s1.
           '<'.$url.'> '.'lsi:roadblockType '.'"'.$local_table_result_s2.'" .'."\n".
           '<'.$url.'>'.'lsi:priority "'.$local_table_result_s3.'"^^xsd:integer .'."\n";
     }
 
-   //   array_pop($splarraytd);
-
-  //  echo 'the roadblock description is'.$local_table_result_s1."\n";
-  //  echo 'the roadblock type is'.$local_table_result_s2."\n";
-  //  echo 'the roadblock priority is'.$local_table_result_s3."\n";
-  //  echo 'break'."\n";
-  //  echo $local_table_result;
 
   }    
 
-  if($tabletypekey == 'Solution Category') {
-     echo '==========This is a Solution=========='."\n";
-  } 
 
-  if($tabletypekey == 'Specific Solution') {
-     echo 'This is the Specific Solution'."\n";
-  }
+ if($tabletypekey == 'Solution Category') {
+      foreach ($splarray as $key => $value) {
+    //   echo $splarray[$key]."\n";
+
+     // Find if the table row contains a description of the Roadblock,
+        // then capture and display its contents  
+          if(preg_match('/Solution Description/',$splarray[$key],$matches)) {
 
 
-} else {
-  // Alternative [3],[4] echo to pull into the turtle file
-  $local_table_result = $local_table_result.matchlist($root,matchbody($source_html));
+  //           echo $splarray[$key]."\n";
+  //           echo '==================soln description==================='."\n";
+             $comment = matchsolutiondescription("{$splarray[$key]}");
+  //           echo $comment;            
 
-} 
+             // [3] echo to pull into global turtle file
+           if($comment !== NULL) {
+             $local_table_result_s1 = $local_table_result_s1.'<'.$url.'> rdfs:comment "'.$comment.'"'."\n";
+           }
+          }
+    //   echo 'the roadblock description is'.$local_table_result_s1;
 
-//echo  'the local table result'.$local_table_result."\n";
-
-$global_result = $global_result.$local_table_result;
-echo $global_result;
-
-function matchtdtable($root,$arrayelement) {
- $local_result = '';  
- if(preg_match('/Roadblock Type/',$arrayelement,$matches)) {
-           //  echo 'Hello Priority'."\n";
-            $splarraytd = preg_split('/===break===/',capturetd($arrayelement));
+        // Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Cost Drivers/',$splarray[$key],$matches)) {
+         //    echo 'Hello Priority you have cost drivers'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
             array_pop($splarraytd);
+           // echo 'spl array td';
+       /*
+            echo 'hello current player';
             print_r($splarraytd);
+            echo 'goodbye current player';      
+       */
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+            //  print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s2 = $local_table_result_s2.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+              //  echo $splarraytd[$key].'is a test';
+                $local_table_result_s2 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+           }
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Average Est Investment Cost/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
 
 
             foreach ($splarraytd as $key => $value) {
@@ -274,22 +302,560 @@ function matchtdtable($root,$arrayelement) {
 
                   foreach($spltd as $key => $value) {
                  // [4] echo to pull into global turtle file
-                 $local_result = $local_table_result_s2.
+                 $local_table_result_s3 = $local_table_result_s3.
                                        '<'.$url.'> '.$spltd[$key];
                }
 
              }
               if($spltd == NULL) {
-             //   echo $splarraytd[$key].'is a test';
-                $local_result = strip_tags($splarraytd[$key]);
+                $local_table_result_s3 = strip_tags($splarraytd[$key]);
               }
 
-              } 
+              }
 
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Average Est Time to Maturity/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s4 = $local_table_result_s4.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s4 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Commercial Status:/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s5 = $local_table_result_s5.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s5 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Related Industries\/Fields/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s6 = $local_table_result_s6.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s6 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+
+
+
+
+          }
+
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Preliminary Tech Required/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s7 = $local_table_result_s7.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s7 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Est Time to Maturity \(in years\)/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s8 = $local_table_result_s8.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s8 = strip_tags($splarraytd[$key]);
+                // add the array
+              }
+
+              }
+
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Funding Opportunities/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s9 = $local_table_result_s9.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s9 = strip_tags($splarraytd[$key]);
+                // add the array
+              }
+
+              }
+
+
+
+
+          }
+
+
+     $local_table_result = $local_table_result_s1.
+        //  '<'.$url.'> '.'lsi:costDrivers '.'"'.$local_table_result_s2.'" .'."\n".
+          '<'.$url.'>'.'lsi:averageEstInvestmentCost "'.$local_table_result_s3.'" .'."\n".
+          '<'.$url.'>'.' lsi:averageEstTimetoMaturity "'.$local_table_result_s4.'" .'."\n".
+          '<'.$url.'>'.' lsi:commercialStatus "'.$local_table_result_s5.'" .'."\n".
+          '<'.$url.'>'.' lsi:relatedIndustriesFields 
+"'.$local_table_result_s6.'" .'."\n";
+       //   '<'.$url.'>'.' lsi:preliminaryTechRequired '.$local_table_result_s7."\n".
+       //   '<'.$url.'>'.' lsi:estTimetoMaturity '.$local_table_result_s8."\n";
+       //   '<'.$url.'>'.' lsi:fundingOpportunities '.$local_table_result_s9."\n";
+    }
+
+
+  }
+
+
+  if($tabletypekey == 'Specific Solution') {
+    foreach ($splarray as $key => $value) {
+       echo $splarray[$key]."\n";
+
+     // Find if the table row contains a description of the Roadblock,
+        // then capture and display its contents  
+          if(preg_match('/Description/',$splarray[$key],$matches)) {
+
+             $comment = matchdescription("{$splarray[$key]}");
+             $comment = strip_tags($comment);
+     //        echo 'th comment are'.$comment."\n";
+     //        echo 'end of the comment'."\n";
+             // [3] echo to pull into global turtle file
+//            echo ' comment is '.$comment."\n";
+//            echo ' ============================ '."\n";
+if($comment !== '') {
+            // echo '==============I am not null========'."\n";
+
+        //    echo ' comment is '.$comment."\n";
+        //    echo ' ============================ '."\n";
+
+
+          $local_table_result_s1 = $local_table_result_s1.'<'.$url.'> rdfs:comment "'.$comment.'" .'."\n";
+       //    echo '==============I am not null========'.$local_table_result_s1."\n";
+}       
    }
+     //  echo 'the roadblock description is'.$local_table_result_s1."\n";
+     //  echo 'end of the roadblock description'."\n";
 
-     return $local_result;
-}
+ // Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Current Player\(s\)/',$splarray[$key],$matches)) {
+             echo '==============================='."\n";
+             echo 'Current Players are the awesome'."\n";
+             echo '==============================='."\n";
+             $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+              array_pop($splarraytd);
+           //  print_r($splarraytd);
+              foreach ($splarraytd as $key => $value) {
+               $local_table_result_s2 = strip_tags($splarraytd[$key]);
+              }
+               echo $local_table_result_s2."\n";  
+           } 
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Progress Status/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s3 = $local_table_result_s3.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s3 = strip_tags($splarraytd[$key]);
+              }
+
+              }
+
+
+
+
+          }
+
+
+
+ // Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Est Investment Cost/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s4 = $local_table_result_s4.
+                                       '<'.$url.'> '.$spltd[$key];
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s4 = '"'.preg_replace('/&nbsp;/','',strip_tags($splarraytd[$key])).'"^^xsd:integer .';
+              }
+
+              }
+
+
+
+
+          }
+
+
+// Priority (1-5)
+   // Find if the table row contains a List of Roadblocks, then capture the contents
+          if(preg_match('/Est Time to Maturity/',$splarray[$key],$matches)) {
+           //  echo 'Hello Priority'."\n";
+            $splarraytd = preg_split('/===break===/',capturetd($splarray[$key]));
+            array_pop($splarraytd);
+          //  print_r($splarraytd);
+
+
+            foreach ($splarraytd as $key => $value) {
+
+              $spltd = preg_split('/===break===/',scrapetd($root,$splarraytd[$key]));
+            //  echo 'spltd'."\n";
+              array_pop($spltd);
+           //   print_r($spltd);
+              if($spltd !== NULL) {
+
+                  foreach($spltd as $key => $value) {
+                 // [4] echo to pull into global turtle file
+                 $local_table_result_s5 = $local_table_result_s5.
+                                       '<'.$url.'> "'.$spltd[$key].'"^^xsd:integer';
+               }
+
+             }
+              if($spltd == NULL) {
+                $local_table_result_s5 = '"'.strip_tags($splarraytd[$key]).'"^^xsd:integer .';
+              }
+
+              }
+
+
+
+
+          }
+
+
+
+     if(preg_match('/Component Systems/',$splarray[$key],$matches)) {
+           $local_splarrayth = array();
+           $local_tharray = array();
+          //   echo 'Hello Priority'.$matches[0]."\n";
+            
+            $srch = "#"     // start pattern
+         . "<th class=\"confluenceTh\">"    // find the div
+         .$matches[0]        // get the string we want as 'argument'
+         . "</th>"  // end div and spaces
+         ."<td class=\"confluenceTd\">"
+         .".*<table class=\"confluenceTable"
+         .".*</table>"
+         . "#siU";   // end string and end pattern
+
+         $arraytmp = array();
+         $arraytmp2 = array();
+         $temp_local_splarrayth = array();
+
+         if(preg_match($srch, $source_html, $matched)) {
+          echo 'this match is'."\n"; 
+          print_r($matched);
+         } 
+ 
+          $local_splarray = preg_split('/===break===/',parsetable($matched[0]));
+          print_r($local_splarray);
+
+          foreach ($local_splarray as $key => $value) {
+             $local_splarrayth = preg_split('/===break===/',captureth($local_splarray[0]));
+      }
+          print_r($local_splarrayth);
+
+          foreach($local_splarrayth as $key => $value) {
+           if($local_splarrayth[$key] !== '') {
+             echo $local_splarrayth[$key]."\n";
+             array_push($temp_local_splarrayth,$local_splarrayth[$key]);
+           }
+          }
+
+          print_r($temp_local_splarrayth);
+          echo 'end of the print result'."\n";
+
+
+          //holder array
+          $holder = array();
+          $localres1 = '';
+          $localres2 = '';
+       
+    
+        foreach($local_splarray as $key => $value) {
+          $spltd = preg_split('/===break===/',capturetd($local_splarray[$key]));
+     //     print_r($spltd);
+          foreach($spltd as $keytwo => $valuetwo) {
+             if($spltd[$keytwo] !== '') {
+               array_push($arraytmp,strip_tags($spltd[$keytwo]));
+             }
+         // write some code here...   
+          }
+          foreach($arraytmp as $keyin => $value) {
+              if($keyin == 0) {
+                 $localres1 = '<'.$url.'>'.' lsi:componentSystem <'.$url.'/'.preg_replace('/ /
+','+',$arraytmp[$keyin]).'> .'."\n";
+                 echo $localres1."\n";
+              }
+             
+              if($keyin == 1) {
+                 $localres2 = '<'.$url.'/'.preg_replace('/ /','+',$arraytmp[0]).'>'.' rdfs:comment "'.$arraytmp[$keyin].'" .';
+                 echo $localres2."\n";
+              }
+          //  echo $arraytmp[$key].' for '.$temp_local_splarrayth[$key].' for '.$key."\n";
+          
+ 
+        //    echo 'local res one is'.$localres1;
+        //    echo 'loca res two is'.$localres2;
+}          
+           if($key <= 1) {
+              echo 'part one'."\n";
+              $local_table_result_s6 = $localres1.$localres2;
+              echo $local_table_result_s6;
+           }
+          
+           if($key > 1 and $key <= 3) {
+             echo 'part two'."\n";
+         //     echo $localres1."\n";
+              $local_table_result_s7 = $localres1.$localres2;
+              echo $local_table_result_s7;
+           }
+          
+        //   echo 'local res one is'.$key.' value  '.$localres1."\n";
+        //   echo 'loca res two is'.$key.' value '.$localres2."\n";
+        //   echo 'temp array'."\n";
+        //  echo $local_splarray[$key]."\n";
+      //    print_r($arraytmp);
+          $arraytmp = [];
+        }
+
+       //   print_r($arraytmp);
+         //   echo 'local res one is'.$localres1;
+         //   echo 'loca res two is'.$localres2;           
+         //   $local_table_result_s6 = $localres1;
+         //   $local_table_result_s7 = $localres2;
+            echo 'here is a break here'."\n";     
+ 
+          foreach($arraytmp as $keythree => $valuethree) {
+              echo strip_tags($arraytmp[$keythree])."\n";
+           }
+
+         
+      //    echo 'end of the td matching'."\n";
+
+     }
+         
+           $local_table_result = $local_table_result_s1.
+          '<'.$url.'> '.' lsi:currentPlayer '.'"'.$local_table_result_s2.'" .'."\n".
+          '<'.$url.'>'.' lsi:progressStatus "'.$local_table_result_s3.'" .'."\n".
+          '<'.$url.'>'.' lsi:estInvestmentCost '.$local_table_result_s4."\n".
+          '<'.$url.'>'.' lsi:estTimeToMaturity '.$local_table_result_s5."\n".
+           $local_table_result_s6."\n".
+           $local_table_result_s7;
+          
+          
+             
+     }
+
+
+  }
+
+
+
+
+
+/*
+
+  if($tabletypekey == 'Specific Solution') {
+     echo 'This is the Specific Solution'."\n";
+  }
+*/
+
+} else {
+  // Alternative [3],[4] echo to pull into the turtle file
+  $local_table_result = $local_table_result.matchlist($root,matchbody($source_html));
+
+} 
+
+//echo  'the local table result'.$local_table_result."\n";
+
+$global_result = $global_result.$local_table_result;
+echo $global_result;
 
 
 function matchbody($string) {
@@ -393,7 +959,7 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
        $result = $result."{$match['argument']}===break===";
        }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
    }
    return $result;
 
@@ -442,9 +1008,28 @@ function scrapetags($root,$url,$body) {
   return $result;
 }
 
+function matchsolutiondescription($argument) {
+  $result = '';
+  $srch = "#"
+        //  ."class=\"confluenceTh\"><strong>Description</strong></th>.*"
+          ."data-macro-name=\"text-data\">"
+          ."(?<description>.*)"
+          ."</p>"
+          ."#siU";
+    if(preg_match($srch, $argument, $match)) {
+      $result = $match['description'];
+    } else {
+        $result = NULL;
+    //  $result = 'No joy!';
+    }
+   return $result;
+}
+
 function matchdescription($argument) {
    $result = '';
    $srch = "#"
+           ."<th colspan=\"1\" "
+           ."class=\"confluenceTh\">Description</th>.*"
            ."data-macro-name=\"text-data\">"
            ."(?<description>.*)"
            ."</p>"
@@ -452,7 +1037,8 @@ function matchdescription($argument) {
     if(preg_match($srch, $argument, $match)) {
       $result = $match['description'];
     } else {
-      $result = 'No joy!';
+        $result = NULL;
+    //  $result = 'No joy!';
     }
    return $result;
 }
