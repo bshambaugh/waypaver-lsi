@@ -6,16 +6,54 @@ Requests::register_autoloader();
 
 // target the desired website
 
-//$root = 'http://lunarsettlement.org/';
+$root = 'http://lunarsettlement.org/';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Biological+Support';
+//$url = 'http://52.201.49.119/display/LSI/Communications';
+//$url = 'http://52.201.49.119/display/LSI/Habitation+and+Infrastructure';
+//$url = 'http://52.201.49.119/display/LSI/Lunar+Environment';
+//$url = 'http://52.201.49.119/display/LSI/Resource%2C+Acquisition%2C+Processing%2C+and+Storage';
+$url = 'http://52.201.49.119/display/LSI/Transportation%2C+Mobility%2C+and+Navigation';
 // $url = 'http://lunarsettlementindex.org/display/LSI/X-Rays';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Bone+Mass+Monitoring';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
 // $url = 'http://lunarsettlementindex.org/display/LSI/Bone+Mass+Monitoring';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Environment';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Communications';
-$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Human+Health+Risk+of+Long-term+Low+Gravity';
+//$url = 'http://52.201.49.119/display/LSI/Diet+Optimization';
+//$url = 'http://52.201.49.119/display/LSI/Radiation+Shielding+Materials';
+//$url = 'http://52.201.49.119/display/LSI/Indirect+Extraction';
+//$url = 'http://52.201.49.119/display/LSI/Chemical+Extraction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Diet+Optimization';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Carbothermal+Regolith+Reduction';
+//$url = 'http://lunarsettlementindex.org/pages/viewpage.action?pageId=1212824';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Diet+Optimization';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Diet+Psychology';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Hydrogen+Reduction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Microwaving+Water+from+Lunar+Regolith';
+//$url = 'http://52.201.49.119/display/LSI/Transportation%2C+Mobility%2C+and+Navigation';
+//$url = 'http://52.201.49.119/display/LSI/Resource%2C+Acquisition%2C+Processing%2C+and+Storage';
+//$url = 'http://52.201.49.119/display/LSI/Lunar+Environment';
+//$url = 'http://52.201.49.119/display/LSI/Communications';
+//$url = 'http://52.201.49.119/display/LSI/Biological+Support';
+//$url = 'http://lunarsettlementindex.org/pages/viewpage.action?pageId=1212824';
+//$url = 'http://lunarsettlementindex.org/display/LSI/RESOLVE';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Carbothermal+Regolith+Reduction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Chemical+Extraction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Radiation+Shielding+Materials';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Indirect+Extraction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/RESOLVE';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Microwaving+Water+from+Lunar+Regolith';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Hydrogen+Reduction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Diet+Psychology';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Chemical+Extraction';
+//$url = 'http://lunarsettlementindex.org/display/LSI/Lunar+Settlement+Roadblocks';
 //$url = 'http://lunarsettlementindex.org/display/LSI/Roadblock+Categories';
+//$url = 'http://52.201.49.119/display/LSI/No+Mature+Entry%2C+Descent%2C+and+Landing+Capability';
+//$url = 'http://52.201.49.119/display/LSI/Unknown+Ideal+Habitat+Structure';
+echo scrapepage($url,$root);
+
+function scrapepage($url,$root) {
 
 // set the request headers
 $headers = array('Accept' => 'text/html');
@@ -62,6 +100,7 @@ $local_table_result_s9 = '';
 
 $temparray = array();
 $tabletypekey = '';
+
 
 // return the roadblocks...
 if(containstable(matchbody($source_html)) == 1) {
@@ -855,7 +894,228 @@ if($comment !== '') {
 //echo  'the local table result'.$local_table_result."\n";
 
 $global_result = $global_result.$local_table_result;
-echo $global_result;
+//echo $global_result;
+
+//}
+
+//echo 'break here to new stuff'."\n";
+
+// echo matchsolutioncategories($source_html);
+
+$ltresult_s1 = NULL;
+$ltresult_s2 = NULL;
+$ltresult_s3 = NULL;
+
+if(matchListSolnCat($url,$root,matchsolutioncategories($source_html)) !== NULL) {
+//echo matchListSolnCat($url,$root,matchsolutioncategories($source_html));
+
+$ltresult_s1 = matchListSolnCat($url,$root,matchsolutioncategories($source_html));
+} else {
+  $ltresult_s1 = '';
+}
+
+if(matchtags($url,$root,$source_html) !== NULL) {
+//echo matchtags($url,$root,$source_html);
+
+$ltresult_s2 = matchtags($url,$root,$source_html);
+} else {
+  $ltresult_s2 = '';
+}
+
+// $arrayisthere = preg_split('/--break--/', matchCitationList(matchCitations($source_html)));
+
+// print_r($arrayisthere);
+
+/*
+echo 'this is the match citation list'."\n";
+echo matchCitationList(matchCitations($source_html));
+
+echo 'end of the match citation list'."\n";
+echo 'start of the second match citation'."\n";
+*/
+if(matchCitations($source_html) !== NULL) {
+//echo '<'.$url.'> lsi:citation "'.strip_tags(matchCitations($source_html)).'" .';
+
+$ltresult_s3 = '<'.$url.'> lsi:citation "'.strip_tags(matchCitations($source_html)).'" .';
+} else {
+  $ltresult_s3 = '';
+}
+
+if(matchSpecificSolutions($url,$source_html) !== NULL) {
+
+   $ltresult_s4 = matchSpecificSolutions($url,$source_html);
+ //  echo 'lt result 4 is'.$ltresult_s4;
+} else {
+  $ltresult_s4 = '';
+}
+
+/*
+if($ltresult_s1 and $ltresult_s2 and $ltresult_s3 !== NULL) { 
+$global_result = $global_result.$ltresult_s1.$ltresult_s2.$ltresult_s3;
+} else {
+  $global_result = $global_result;
+}
+*/
+
+$global_result = $global_result.$ltresult_s1.$ltresult_s2.$ltresult_s3.$ltresult_s4;
+return $global_result."\n";
+
+}
+/*
+echo 'end of the second match citation'."\n";
+*/
+
+function matchSpecificSolutions($url,$argument) {
+   $result = '';
+   $root = 'http://lunarsettlement.org';
+   $srch = "#"
+           ."Specific Solutions:.*Citations:"
+           ."#siU";
+   $srchinside = "#"
+                 ."<a href=\"(?<url>.*)\">(?<name>.*)</a>"
+                 ."#siU";
+
+   if(preg_match($srch, $argument, $match_outer)) {
+        if(preg_match_all($srchinside,$match_outer[0],$matches, PREG_SET_ORDER)) {
+       foreach ($matches as $key=>$match) {
+         $result = $result.'<'.$url.'> lsi:specificSolution '.'<'.$root.$match['url'].'> .'."\n".
+        '<'.$root.$match['url'].'> dc:title "'.$match['name'].'" .'."\n";
+       }
+     }
+   //  $result = '';
+   //  print_r($match);
+  } else {
+     $result = NULL;
+  }
+  return $result;
+
+}
+
+/*
+
+function matchSpecificSolutions($url,$argument) {
+   $result = '';
+   $root = 'http://lunarsettlement.org';
+   $srch = "#"
+           ."Specific Solutions:</h2>.*"
+           ."<a href=\""
+           ."(?<url>.*)\">(?<name>.*)</a>"
+           ."#siU";
+
+   if(preg_match($srch, $argument, $match)) {
+       $result = '<'.$url.'> lsi:specificSolution '.'<'.$root.$match['url'].'> .'."\n".
+       '<'.$root.$match['url'].'> dc:title "'.$match['name'].'" .';
+   //  $result = '';
+   //  print_r($match);
+  } else {
+     $result = NULL;
+  }
+  return $result;
+
+}        
+*/
+
+function matchCitationList($argument) {
+  $result = '';
+  $srch = "#"
+          ."<p>(?<url>.*)"
+          ."</p>"
+          ."#siU";
+
+
+if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
+       foreach ($matches as $key=>$match) {
+
+
+          $result = $result.$match['url'].' . --break--'."\n";
+
+     }
+   } else {
+     $result = NULL;
+   }
+   return $result;
+  
+}
+
+// 1 and 2
+
+
+function matchCitations($html) {
+   $srch = "#"
+         //  ."<div id=\"main-content\" class=\"wiki-content\">.*"
+           ."Citations:</h2>"
+           .".*"
+           ."</div>.*</div>"
+           ."#siU";  
+   if(preg_match($srch, $html, $match)) {
+       $result = $match[0];
+   //  $result = '';
+   //  print_r($match);
+  } else {
+     $result = NULL;
+  }
+  return $result;
+}
+
+
+
+function matchtags($url,$root,$name) {
+  $result = '';
+  $srch = "#"
+          ."<a class=\"aui-label-split-main\" href=\"(?<url>.*)\" rel=\"tag\">(?<name>.*)</a>"
+          ."#siU";
+
+ if(preg_match_all($srch,$name,$matches, PREG_SET_ORDER)) {
+       foreach ($matches as $key=>$match) {
+
+
+          $result = $result.'<'.$url.'> lsi:label '.'<'.$root.$match['url'].'> .'."\n".
+   '<'.$root.$match['url'].'> dc:title "'.$match['name'].'" .'."\n";
+
+     }
+   } else {
+     $result = NULL;
+   }
+   return $result;
+}
+
+function matchsolutioncategories($html) {
+  $srch = "#"
+          ."Solution Categories:</h2>"
+          .".*"
+          ."<h2"
+          ."#siU";
+  
+  if(preg_match($srch, $html, $match)) {
+       $result = $match[0];
+   //  $result = '';
+   //  print_r($match);
+  } else {
+     $result = NULL;
+  }
+  return $result;
+}
+
+function matchListSolnCat($url,$root,$argument) {
+   $result = '';
+   $searchlist = "#"
+              ."<li><a href=\"(?<url>.*)\">(?<name>.*)</a></li>"
+              ."#siU";
+   if(preg_match_all($searchlist,$argument,$matches, PREG_SET_ORDER)) {
+       foreach ($matches as $key=>$match) {
+
+
+             $result = $result.'<'.$url.'> lsi:containsSolutionCategory '.'<'.$root.$match['url'].'> .'."\n".
+                       '<'.$root.$match['url'].'> a lsi:SolutionCategory .'."\n".
+              '<'.$root.$match['url'].'> dc:title "'.$match['name'].'" . '."\n";
+
+     }
+   } else {
+     $result = NULL;
+   }
+   return $result;
+}
+
 
 
 function matchbody($string) {
@@ -867,7 +1127,7 @@ function matchbody($string) {
   if(preg_match($srch, $string, $match)) {
    $result = $match[1];
   } else {
-   $result = 'No joy!';   
+   $result = NULL;   
   }
    return $result;
  }
@@ -881,12 +1141,12 @@ function matchlist($root,$argument) {
        foreach ($matches as $key=>$match) {
 
 
-             $result = $result.'<'.$root.$match['url'].'> a lsi:RoadblockCategory .'."\n".
+             $result = $result.'<'.$root.$match['url'].'> a lsi:Roadblock .'."\n".
                        '<'.$root.$match['url'].'> dct:title '.'"'.$match['name'].'" .'."\n";
 
      }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
    }
    return $result;
 }
@@ -916,7 +1176,7 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
          $result = $result."{$match['argument']}===break===";
       }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
    }
    return $result;
 
@@ -939,7 +1199,7 @@ if(preg_match_all($srch,$argument,$matches, PREG_SET_ORDER)) {
          $result = strip_tags($result);
        }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
    }
    return $result;
 
@@ -982,7 +1242,7 @@ function scrapetd($root,$argument) {
 
        }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
    }
    return $result;
 }
@@ -1003,7 +1263,7 @@ function scrapetags($root,$url,$body) {
 "<".$root.$url."> schema:isRelatedTo <".$root."{$match['matchingurl']}> .\n";
         }
    } else {
-     $result = 'No joy!';
+     $result = NULL;
  }
   return $result;
 }
@@ -1060,7 +1320,7 @@ function matchtitleinpageRDF($url,$argument) {
         if(preg_match($srch, $argument, $match)) {
         $result = '<'.$url.'>'.' dc:title "'.$match['pagetitle']."\" ."."\n";
     } else {
-      $result = 'No joy!';
+      $result = NULL;
     }
    return $result;       
 }
@@ -1139,7 +1399,7 @@ function matchauthor($url,$root,$argument) {
            $resultmo = $resultmo."{$match['year']}-{$match['month']}-{$match['day']}";
        }
      } else {
-       $resultmo = 'No joy!';
+       $resultmo = NULL;
      }
 
       foreach($months as $key => $value) {
@@ -1150,7 +1410,7 @@ function matchauthor($url,$root,$argument) {
 
 
     } else {
-       $result = 'No joy!';
+       $result = NULL;
     }
 
 
